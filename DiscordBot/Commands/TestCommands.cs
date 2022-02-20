@@ -11,16 +11,17 @@ namespace DiscordBot.Commands
 {
     class TestCommands : BaseCommandModule
     {
-        [Command("ping")]
-        [Description("Replies pong.")]
+
+        [Command("Ping")]
+        [Description("Replies Pong.")]
         public async Task Ping(CommandContext ctx)
         {
             await ctx.Channel
-                .SendMessageAsync("pong")
+                .SendMessageAsync("Pong")
                 .ConfigureAwait(false);
         }
 
-        [Command("add")]
+        [Command("Add")]
         [Description("Adds two integers.")]
         public async Task Add(CommandContext ctx, 
             [Description("First integer.")] int a, 
@@ -33,9 +34,9 @@ namespace DiscordBot.Commands
                 .ConfigureAwait(false);
         }
 
-        [Command("response")]
+        [Command("RespondMsg")]
         [Description("None")]
-        public async Task Response(CommandContext ctx)
+        public async Task RespondMsg(CommandContext ctx)
         {
             var interactivity = ctx.Client.GetInteractivity();
 
@@ -44,6 +45,20 @@ namespace DiscordBot.Commands
                 .ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(message.Result.Content);
+
+        }
+
+        [Command("RespondReaction")]
+        [Description("None")]
+        public async Task RespondReaction(CommandContext ctx)
+        {
+            var interactivity = ctx.Client.GetInteractivity();
+
+            var message = await interactivity
+                .WaitForReactionAsync(x => x.Channel == ctx.Channel)
+                .ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(message.Result.Emoji);
 
         }
     }

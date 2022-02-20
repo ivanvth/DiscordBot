@@ -36,6 +36,7 @@ namespace DiscordBot
                 AutoReconnect = true,
                 MinimumLogLevel = LogLevel.Debug,
                 //UseInternalLogHandler = true
+                Intents = DiscordIntents.All
             };
             Client = new DiscordClient(config);
 
@@ -58,13 +59,21 @@ namespace DiscordBot
             Commands = Client.UseCommandsNext(commandsConfig);
 
             Commands.RegisterCommands<TestCommands>();
+            Commands.RegisterCommands<TeamCommands>();
+
 
             await Client.ConnectAsync();
+            
             await Task.Delay(-1);
 
         }
 
         private Task OnClientReady(object sender, ReadyEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+
+        private Task OnJoin(object sender, ReadyEventArgs e)
         {
             return Task.CompletedTask;
         }
