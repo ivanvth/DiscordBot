@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace DiscordBot.Commands
     class TestCommands : BaseCommandModule
     {
 
-        [Command("Ping")]
+        [Command("ping")]
         [Description("Replies Pong.")]
         public async Task Ping(CommandContext ctx)
         {
@@ -21,7 +22,7 @@ namespace DiscordBot.Commands
                 .ConfigureAwait(false);
         }
 
-        [Command("Add")]
+        [Command("add")]
         [Description("Adds two integers.")]
         public async Task Add(CommandContext ctx, 
             [Description("First integer.")] int a, 
@@ -34,7 +35,7 @@ namespace DiscordBot.Commands
                 .ConfigureAwait(false);
         }
 
-        [Command("RespondMsg")]
+        [Command("respondMsg")]
         [Description("None")]
         public async Task RespondMsg(CommandContext ctx)
         {
@@ -48,7 +49,7 @@ namespace DiscordBot.Commands
 
         }
 
-        [Command("RespondReaction")]
+        [Command("respondReaction")]
         [Description("None")]
         public async Task RespondReaction(CommandContext ctx)
         {
@@ -60,6 +61,32 @@ namespace DiscordBot.Commands
 
             await ctx.Channel.SendMessageAsync(message.Result.Emoji);
 
+        }
+
+        [Command("poll")]
+        [Description("")]
+        public async Task Poll(CommandContext ctx, TimeSpan duration, params DiscordEmoji[] emojiOptions)
+        {
+            var interactivity = ctx.Client.GetInteractivity();
+            var options = emojiOptions.Select(x => x.ToString());
+
+            var pollEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Poll",
+                Description = string.Join(" ", options)
+            };
+
+           var pollMessage = await ctx.Channel.SendMessageAsync(embed: pollEmbed);
+
+            foreach (DiscordEmoji option in emojiOptions)
+            {
+                await pollMessage.CreateReactionAsync(option);
+            }
+
+            var result = await interactivity.CollectReactionsAsync(pollMessage, duration);
+            var distinctResult = result.Distinct();
+            var results = distinctResult.Select(x => $"{x.Emoji}: {x.Total}");
+            await ctx.Channel.SendMessageAsync(string.Join("\n", results));
         }
     }
 }
